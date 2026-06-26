@@ -32,7 +32,8 @@ router.post("/products", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [product] = await db.insert(productsTable).values(parsed.data).returning();
+  const insertData = { ...parsed.data, price: String(parsed.data.price) };
+  const [product] = await db.insert(productsTable).values(insertData).returning();
   res.status(201).json({ ...product, price: Number(product.price) });
 });
 
@@ -48,7 +49,10 @@ router.patch("/products/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [product] = await db.update(productsTable).set(parsed.data).where(eq(productsTable.id, params.data.id)).returning();
+  const { price: rawPrice, ...rest } = parsed.data;
+  const updateData: Record<string, unknown> = { ...rest };
+  if (rawPrice !== undefined) updateData.price = String(rawPrice);
+  const [product] = await db.update(productsTable).set(updateData as any).where(eq(productsTable.id, params.data.id)).returning();
   if (!product) {
     res.status(404).json({ error: "Product not found" });
     return;
