@@ -1,0 +1,457 @@
+# Product Requirements Document (PRD)
+
+# Social Seller Toolkit – Content Library & Customer Portal
+
+## Product Overview
+
+The Content Library & Customer Portal is an extension of the Social Seller Toolkit designed to solve two major problems faced by social media businesses:
+
+1. Sellers struggle to consistently create engaging captions and broadcast messages.
+2. Customers have no centralized place to track their orders after purchasing through WhatsApp or Instagram.
+
+The module combines an AI-assisted content library with a customer portal to improve both sales and customer experience.
+
+---
+
+# Problem Statement
+
+Most social sellers spend hours:
+
+* Thinking of captions every day.
+* Writing promotional broadcasts.
+* Creating sales campaigns.
+* Responding to customers asking:
+
+  * "Has my order been shipped?"
+  * "Where is my package?"
+  * "Can I see my previous orders?"
+
+There is no centralized solution that handles both marketing content and customer order tracking.
+
+---
+
+# Product Goals
+
+The product should enable sellers to:
+
+* Generate sales content in seconds.
+* Access ready-made templates.
+* Increase engagement.
+* Improve repeat purchases.
+* Reduce customer support workload.
+* Give customers confidence through transparent order tracking.
+
+---
+
+# Target Users
+
+### Primary Users
+
+* Fashion vendors
+* Hair vendors
+* Wig businesses
+* Food vendors
+* Jewellery businesses
+* Cosmetic stores
+* Shoe sellers
+* Phone accessory sellers
+* Home decor vendors
+
+### Secondary Users
+
+* Small businesses
+* Online boutiques
+* Social media managers
+* Resellers
+
+---
+
+# Feature 1: Caption Library
+
+## Overview
+
+A searchable library containing hundreds of professionally written captions.
+
+Users can filter captions based on:
+
+* Business niche
+* Promotion type
+* Tone
+* Platform
+
+---
+
+## Categories
+
+### Fashion
+
+Examples:
+
+* New arrivals
+* Weekend sales
+* Restock alerts
+* Luxury collection
+* Outfit inspiration
+* Clearance sale
+
+---
+
+### Hair
+
+Examples:
+
+* Wig installation
+* Hair bundles
+* Closure promotion
+* Hair maintenance tips
+* Before & After captions
+
+---
+
+### Food
+
+Examples:
+
+* Lunch specials
+* Weekend menu
+* Restaurant promotions
+* Delivery reminders
+* Customer reviews
+
+---
+
+### Jewellery
+
+Examples:
+
+* Luxury pieces
+* Birthday gifts
+* Anniversary collections
+* New arrivals
+* Flash sales
+
+---
+
+### Beauty
+
+* Makeup
+* Skincare
+* Perfume
+* Spa services
+
+---
+
+### Electronics
+
+* Gadget launches
+* Product highlights
+* Discount campaigns
+
+---
+
+# Caption Filters
+
+Users can search by:
+
+* Funny
+* Luxury
+* Urgent
+* Emotional
+* Storytelling
+* Promotional
+* Educational
+* Product Launch
+* Customer Testimonial
+
+---
+
+# AI Caption Generator
+
+Seller enters:
+
+* Product name
+* Business niche
+* Tone
+* Promotion goal
+
+AI generates:
+
+* Instagram captions
+* Facebook captions
+* TikTok captions
+* WhatsApp Status captions
+
+Users can regenerate, shorten, or rewrite captions.
+
+---
+
+# Feature 2: Broadcast Message Library
+
+## Overview
+
+Ready-to-send WhatsApp broadcast templates.
+
+Categories include:
+
+### Welcome Messages
+
+Example:
+
+"Welcome to our store! Thank you for choosing us. Here's everything you need to know..."
+
+---
+
+### New Arrival Broadcast
+
+"Guess what's here? Our newest collection just landed..."
+
+---
+
+### Flash Sale
+
+"For the next 24 hours enjoy 20% OFF..."
+
+---
+
+### Restock Announcement
+
+"Your favorite item is finally back in stock!"
+
+---
+
+### Holiday Promotions
+
+* Christmas
+* Easter
+* Valentine's Day
+* Mother's Day
+* Black Friday
+
+---
+
+### Payment Reminder
+
+"Hi! Your order has been reserved. Kindly complete payment to secure it."
+
+---
+
+### Delivery Update
+
+"Good news! Your order has been shipped and is on its way."
+
+---
+
+### Customer Appreciation
+
+"Thank you for shopping with us! Here's a special discount for your next order."
+
+---
+
+### Re-engagement Campaign
+
+"We've missed you! Here's an exclusive offer just for you."
+
+---
+
+# AI Broadcast Generator
+
+Seller provides:
+
+* Business niche
+* Promotion type
+* Audience
+* Discount percentage
+* Product
+
+The system creates personalized broadcast messages ready to copy or send.
+
+---
+
+# Feature 3: Customer Portal
+
+## Overview
+
+Customers receive an account after placing their first order.
+
+They can sign in using:
+
+* Phone number + OTP
+* Email + Password
+* Google Sign-In (optional)
+* Apple Sign-In (iOS)
+
+---
+
+## Customer Dashboard
+
+Displays:
+
+* Active Orders
+* Delivered Orders
+* Cancelled Orders
+* Wishlist
+* Saved Addresses
+* Payment History
+
+---
+
+## Order Tracking
+
+Each order displays:
+
+* Order Number
+* Date Ordered
+* Payment Status
+* Delivery Status
+* Courier
+* Tracking Number
+* Estimated Delivery Date
+
+Progress tracker:
+
+✓ Order Confirmed
+
+↓
+
+✓ Payment Received
+
+↓
+
+✓ Processing
+
+↓
+
+✓ Shipped
+
+↓
+
+✓ Out for Delivery
+
+↓
+
+✓ Delivered
+
+---
+
+# Order Notifications
+
+Customers receive notifications when:
+
+* Order confirmed
+* Payment received
+* Order shipped
+* Out for delivery
+* Delivered
+
+Notifications can be sent through:
+
+* Push Notifications
+* Email
+* SMS
+* WhatsApp (where supported)
+
+---
+
+# Digital Receipts
+
+Customers can:
+
+* View receipts
+* Download invoices
+* Print receipts
+
+---
+
+# Reorder Feature
+
+Customers can reorder previous purchases with one tap.
+
+---
+
+# Wishlist
+
+Customers can save products for future purchase.
+
+---
+
+# Loyalty Rewards
+
+Customers earn:
+
+* Points
+* Discounts
+* Referral rewards
+* VIP badges
+
+---
+
+# Seller Dashboard Additions
+
+Sellers can:
+
+* Upload new caption templates.
+* Save favorite templates.
+* Create custom caption collections.
+* Schedule broadcast messages.
+* Track broadcast open and click rates (where supported).
+* View customer engagement analytics.
+* Manage customer orders and update statuses.
+
+---
+
+# Functional Requirements
+
+* User authentication for sellers and customers.
+* Role-based access (Seller/Admin/Customer).
+* Searchable content library.
+* AI content generation.
+* Customer portal with secure login.
+* Order management system.
+* Push notification service.
+* Receipt generation.
+* Order tracking timeline.
+
+---
+
+# Non-Functional Requirements
+
+* Secure authentication.
+* Fast search performance.
+* Cloud storage for templates.
+* Mobile-first responsive design.
+* Offline draft saving.
+* Scalable architecture for thousands of sellers.
+
+---
+
+# Success Metrics
+
+* Number of captions used weekly.
+* Broadcast messages sent.
+* AI-generated content usage.
+* Customer portal sign-ups.
+* Reduction in customer support inquiries.
+* Repeat purchase rate.
+* Customer satisfaction score.
+* Seller retention rate.
+
+---
+
+# Future Enhancements
+
+* AI image caption suggestions.
+* AI product description generator.
+* Video hook generator for Reels and TikTok.
+* Canva integration.
+* WhatsApp Business integration.
+* Instagram and Facebook scheduling.
+* Multi-language caption support.
+* Seasonal content calendar.
+* Team collaboration for businesses with multiple staff.
+* AI that learns a seller's brand voice and generates personalized content.
+
+---
+
+# Expected Outcome
+
+This module transforms the Social Seller Toolkit into a complete sales enablement and customer experience platform. Sellers save time by accessing ready-made and AI-generated marketing content, while customers enjoy a modern self-service portal for tracking orders, viewing receipts, and managing their purchase history. The result is increased seller productivity, stronger customer trust, and higher repeat sales.

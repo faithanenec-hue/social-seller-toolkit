@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Social Seller Toolkit API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: captions
+    description: Caption library operations
+  - name: broadcasts
+    description: Broadcast template operations
+  - name: products
+    description: Product operations
+  - name: orders
+    description: Order management
+  - name: wishlist
+    description: Customer wishlist
+  - name: loyalty
+    description: Customer loyalty rewards
+  - name: analytics
+    description: Seller analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,511 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /captions:
+    get:
+      operationId: listCaptions
+      tags: [captions]
+      summary: List captions with filters
+      parameters:
+        - name: niche
+          in: query
+          schema:
+            type: string
+        - name: tone
+          in: query
+          schema:
+            type: string
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of captions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaptionListResponse"
+    post:
+      operationId: createCaption
+      tags: [captions]
+      summary: Create a new caption template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaptionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Caption"
+
+  /captions/popular:
+    get:
+      operationId: getPopularCaptions
+      tags: [captions]
+      summary: Get most popular captions
+      responses:
+        "200":
+          description: Popular captions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Caption"
+
+  /captions/niches:
+    get:
+      operationId: listCaptionNiches
+      tags: [captions]
+      summary: Get available niche categories
+      responses:
+        "200":
+          description: Niche list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NicheStat"
+
+  /captions/generate:
+    post:
+      operationId: generateCaption
+      tags: [captions]
+      summary: AI-generate captions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaptionGenerateInput"
+      responses:
+        "200":
+          description: Generated captions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratedCaptions"
+
+  /captions/{id}:
+    get:
+      operationId: getCaption
+      tags: [captions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Caption
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Caption"
+        "404":
+          description: Not found
+
+  /captions/{id}/save:
+    post:
+      operationId: saveCaption
+      tags: [captions]
+      summary: Save or unsave a caption
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveCaptionInput"
+      responses:
+        "200":
+          description: Save status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedCaption"
+
+  /captions/saved:
+    get:
+      operationId: listSavedCaptions
+      tags: [captions]
+      summary: List seller's saved captions
+      responses:
+        "200":
+          description: Saved captions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Caption"
+
+  /broadcasts:
+    get:
+      operationId: listBroadcasts
+      tags: [broadcasts]
+      summary: List broadcast templates
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: niche
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of broadcast templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BroadcastTemplate"
+    post:
+      operationId: createBroadcast
+      tags: [broadcasts]
+      summary: Create broadcast template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BroadcastTemplate"
+
+  /broadcasts/generate:
+    post:
+      operationId: generateBroadcast
+      tags: [broadcasts]
+      summary: AI-generate broadcast message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastGenerateInput"
+      responses:
+        "200":
+          description: Generated broadcast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratedBroadcast"
+
+  /broadcasts/{id}:
+    get:
+      operationId: getBroadcast
+      tags: [broadcasts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Broadcast template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BroadcastTemplate"
+        "404":
+          description: Not found
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: niche
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Products list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/summary:
+    get:
+      operationId: getOrderSummary
+      tags: [orders]
+      summary: Get order analytics summary for seller
+      responses:
+        "200":
+          description: Order summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderSummary"
+
+  /orders/recent:
+    get:
+      operationId: getRecentOrders
+      tags: [orders]
+      summary: Get recent orders
+      responses:
+        "200":
+          description: Recent orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+        "404":
+          description: Not found
+
+  /orders/{id}/status:
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusUpdate"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /wishlist:
+    get:
+      operationId: listWishlist
+      tags: [wishlist]
+      summary: Get customer wishlist
+      responses:
+        "200":
+          description: Wishlist items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WishlistItem"
+    post:
+      operationId: addToWishlist
+      tags: [wishlist]
+      summary: Add product to wishlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WishlistInput"
+      responses:
+        "201":
+          description: Added to wishlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WishlistItem"
+
+  /wishlist/{id}:
+    delete:
+      operationId: removeFromWishlist
+      tags: [wishlist]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
+
+  /loyalty:
+    get:
+      operationId: getLoyalty
+      tags: [loyalty]
+      summary: Get customer loyalty info
+      responses:
+        "200":
+          description: Loyalty data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loyalty"
+
+  /analytics/overview:
+    get:
+      operationId: getAnalyticsOverview
+      tags: [analytics]
+      summary: Get seller analytics overview
+      responses:
+        "200":
+          description: Analytics overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsOverview"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +552,574 @@ components:
       required:
         - status
 
+    Caption:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        niche:
+          type: string
+        tone:
+          type: string
+        platform:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+        usageCount:
+          type: integer
+        isSaved:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - text
+        - niche
+        - tone
+        - platform
+        - type
+        - category
+        - usageCount
+        - isSaved
+        - createdAt
+
+    CaptionInput:
+      type: object
+      properties:
+        text:
+          type: string
+        niche:
+          type: string
+        tone:
+          type: string
+        platform:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+      required:
+        - text
+        - niche
+        - tone
+        - platform
+        - type
+        - category
+
+    CaptionListResponse:
+      type: object
+      properties:
+        captions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Caption"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - captions
+        - total
+        - page
+        - totalPages
+
+    NicheStat:
+      type: object
+      properties:
+        niche:
+          type: string
+        count:
+          type: integer
+      required:
+        - niche
+        - count
+
+    CaptionGenerateInput:
+      type: object
+      properties:
+        productName:
+          type: string
+        niche:
+          type: string
+        tone:
+          type: string
+        promotionGoal:
+          type: string
+        platforms:
+          type: array
+          items:
+            type: string
+      required:
+        - productName
+        - niche
+        - tone
+        - promotionGoal
+        - platforms
+
+    GeneratedCaptions:
+      type: object
+      properties:
+        captions:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeneratedCaption"
+      required:
+        - captions
+
+    GeneratedCaption:
+      type: object
+      properties:
+        platform:
+          type: string
+        text:
+          type: string
+      required:
+        - platform
+        - text
+
+    SaveCaptionInput:
+      type: object
+      properties:
+        save:
+          type: boolean
+      required:
+        - save
+
+    SavedCaption:
+      type: object
+      properties:
+        id:
+          type: integer
+        captionId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - captionId
+        - createdAt
+
+    BroadcastTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        message:
+          type: string
+        category:
+          type: string
+        niche:
+          type: string
+        usageCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - message
+        - category
+        - niche
+        - usageCount
+        - createdAt
+
+    BroadcastInput:
+      type: object
+      properties:
+        title:
+          type: string
+        message:
+          type: string
+        category:
+          type: string
+        niche:
+          type: string
+      required:
+        - title
+        - message
+        - category
+        - niche
+
+    BroadcastGenerateInput:
+      type: object
+      properties:
+        niche:
+          type: string
+        promotionType:
+          type: string
+        audience:
+          type: string
+        discountPercentage:
+          type: ["integer", "null"]
+        productName:
+          type: string
+        businessName:
+          type: string
+      required:
+        - niche
+        - promotionType
+        - audience
+        - productName
+        - businessName
+
+    GeneratedBroadcast:
+      type: object
+      properties:
+        message:
+          type: string
+        subject:
+          type: string
+      required:
+        - message
+        - subject
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        niche:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        inStock:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - price
+        - niche
+        - inStock
+        - createdAt
+
+    ProductInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        niche:
+          type: string
+        imageUrl:
+          type: string
+        inStock:
+          type: boolean
+      required:
+        - title
+        - price
+        - niche
+
+    ProductUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        niche:
+          type: string
+        imageUrl:
+          type: string
+        inStock:
+          type: boolean
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderNumber:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        status:
+          type: string
+          enum: [confirmed, payment_received, processing, shipped, out_for_delivery, delivered, cancelled]
+        paymentStatus:
+          type: string
+          enum: [pending, paid, failed, refunded]
+        total:
+          type: number
+        trackingNumber:
+          type: ["string", "null"]
+        courier:
+          type: ["string", "null"]
+        estimatedDelivery:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - orderNumber
+        - customerName
+        - customerEmail
+        - status
+        - paymentStatus
+        - total
+        - createdAt
+
+    OrderDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderNumber:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        status:
+          type: string
+          enum: [confirmed, payment_received, processing, shipped, out_for_delivery, delivered, cancelled]
+        paymentStatus:
+          type: string
+          enum: [pending, paid, failed, refunded]
+        total:
+          type: number
+        trackingNumber:
+          type: ["string", "null"]
+        courier:
+          type: ["string", "null"]
+        estimatedDelivery:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - orderNumber
+        - customerName
+        - customerEmail
+        - status
+        - paymentStatus
+        - total
+        - items
+        - createdAt
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productTitle:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+      required:
+        - id
+        - productId
+        - productTitle
+        - quantity
+        - price
+
+    OrderInput:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemInput"
+      required:
+        - customerName
+        - customerEmail
+        - items
+
+    OrderItemInput:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity
+
+    OrderStatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [confirmed, payment_received, processing, shipped, out_for_delivery, delivered, cancelled]
+        trackingNumber:
+          type: string
+        courier:
+          type: string
+        estimatedDelivery:
+          type: string
+      required:
+        - status
+
+    OrderSummary:
+      type: object
+      properties:
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        activeOrders:
+          type: integer
+        deliveredOrders:
+          type: integer
+        cancelledOrders:
+          type: integer
+        pendingPayments:
+          type: integer
+        statusBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusCount"
+      required:
+        - totalOrders
+        - totalRevenue
+        - activeOrders
+        - deliveredOrders
+        - cancelledOrders
+        - pendingPayments
+        - statusBreakdown
+
+    StatusCount:
+      type: object
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+      required:
+        - status
+        - count
+
+    WishlistItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        product:
+          $ref: "#/components/schemas/Product"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - product
+        - createdAt
+
+    WishlistInput:
+      type: object
+      properties:
+        productId:
+          type: integer
+      required:
+        - productId
+
+    Loyalty:
+      type: object
+      properties:
+        points:
+          type: integer
+        tier:
+          type: string
+          enum: [bronze, silver, gold, platinum]
+        nextTierPoints:
+          type: integer
+        totalSpent:
+          type: number
+        discountEarned:
+          type: number
+        referralCode:
+          type: string
+      required:
+        - points
+        - tier
+        - nextTierPoints
+        - totalSpent
+        - discountEarned
+        - referralCode
+
+    AnalyticsOverview:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+        totalOrders:
+          type: integer
+        totalCustomers:
+          type: integer
+        captionsUsed:
+          type: integer
+        broadcastsSent:
+          type: integer
+        topNiches:
+          type: array
+          items:
+            $ref: "#/components/schemas/NicheStat"
+        revenueByDay:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayStat"
+        repeatPurchaseRate:
+          type: number
+      required:
+        - totalRevenue
+        - totalOrders
+        - totalCustomers
+        - captionsUsed
+        - broadcastsSent
+        - topNiches
+        - revenueByDay
+        - repeatPurchaseRate
+
+    DayStat:
+      type: object
+      properties:
+        date:
+          type: string
+        revenue:
+          type: number
+        orders:
+          type: integer
+      required:
+        - date
+        - revenue
+        - orders
