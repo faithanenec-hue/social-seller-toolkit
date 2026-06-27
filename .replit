@@ -23,3 +23,4 @@ timeoutMs = 20000
 
 [userenv.shared]
 SELLER_INVITE_CODE = "seller-access-2024"
+ADMIN_INVITE_CODE = "admin-access-2024"

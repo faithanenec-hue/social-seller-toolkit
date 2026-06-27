@@ -35,6 +35,27 @@ router.post("/auth/claim-seller", requireAuth, async (req, res): Promise<void> =
   res.json({ role: "seller", message: "Seller access granted" });
 });
 
+router.post("/auth/claim-admin", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
+  const { inviteCode } = req.body;
+
+  const expectedCode = process.env.ADMIN_INVITE_CODE;
+  if (!expectedCode) {
+    res.status(503).json({ error: "Admin invite code not configured" });
+    return;
+  }
+  if (!inviteCode || inviteCode !== expectedCode) {
+    res.status(403).json({ error: "Invalid admin invite code" });
+    return;
+  }
+
+  await clerkClient.users.updateUserMetadata(userId, {
+    publicMetadata: { role: "admin" },
+  });
+
+  res.json({ role: "admin", message: "Admin access granted" });
+});
+
 router.get("/admin/users", requireRole("admin"), async (req, res): Promise<void> => {
   const { search = "", limit = "50", offset = "0" } = req.query as Record<string, string>;
 
