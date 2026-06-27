@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, captionsTable, savedCaptionsTable } from "@workspace/db";
-import { eq, ilike, and, desc, sql } from "drizzle-orm";
+import { eq, ilike, and, desc, sql, inArray } from "drizzle-orm";
 import {
   ListCaptionsQueryParams,
   CreateCaptionBody,
@@ -95,7 +95,7 @@ router.get("/captions/saved", async (_req, res): Promise<void> => {
     res.json([]);
     return;
   }
-  const captions = await db.select().from(captionsTable).where(sql`${captionsTable.id} = ANY(${savedIds})`);
+  const captions = await db.select().from(captionsTable).where(inArray(captionsTable.id, savedIds));
   res.json(captions.map((c) => ({ ...c, isSaved: true })));
 });
 
