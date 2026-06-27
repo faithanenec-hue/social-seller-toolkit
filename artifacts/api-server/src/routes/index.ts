@@ -8,10 +8,12 @@ import wishlistRouter from "./wishlist";
 import loyaltyRouter from "./loyalty";
 import analyticsRouter from "./analytics";
 import collectionsRouter from "./collections";
+import authRouter from "./auth";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
 router.use(captionsRouter);
 router.use(broadcastsRouter);
 router.use(productsRouter);

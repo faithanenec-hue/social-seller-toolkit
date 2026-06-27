@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useUser, useClerk, Show } from "@clerk/react";
+import { useUser, useClerk } from "@clerk/react";
+import { useRole, isSellerOrAdmin } from "@/hooks/useRole";
 import {
   LayoutDashboard,
   MessageSquareText,
@@ -12,21 +13,27 @@ import {
   Menu,
   LogOut,
   UserCircle2,
+  ShieldCheck,
+  Users,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const isPortal = location.startsWith("/portal");
-  const [mode, setMode] = useState<"seller" | "portal">(isPortal ? "portal" : "seller");
 
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { role } = useRole();
+  const isSeller = isSellerOrAdmin(role);
+
+  const [mode, setMode] = useState<"seller" | "portal">(isPortal ? "portal" : "seller");
 
   const toggleMode = (checked: boolean) => {
     const newMode = checked ? "portal" : "seller";
@@ -52,7 +59,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: "Loyalty", path: "/portal/loyalty", icon: Gift },
   ];
 
-  const currentNav = mode === "seller" ? sellerNav : portalNav;
+  const currentNav = !user ? [] : (!isSeller || mode === "portal") ? portalNav : sellerNav;
+
+  const RoleBadge = () => {
+    if (role === "admin") return <Badge className="text-xs bg-red-100 text-red-700 border-red-200 hover:bg-red-100">Admin</Badge>;
+    if (role === "seller") return <Badge className="text-xs bg-violet-100 text-violet-700 border-violet-200 hover:bg-violet-100">Seller</Badge>;
+    return <Badge variant="outline" className="text-xs text-muted-foreground">Customer</Badge>;
+  };
 
   const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
     <>
@@ -74,42 +87,81 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </>
   );
 
-  const PortalUserFooter = () => (
-    <Show when="signed-in">
-      <div className="mt-auto pt-4 border-t space-y-2">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-muted/50">
-          <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <UserCircle2 className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] || "Customer"}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {user?.emailAddresses?.[0]?.emailAddress}
-            </p>
-          </div>
+  const UserFooter = () => (
+    <div className="mt-auto pt-4 border-t space-y-2">
+      <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-muted/50">
+        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+          <UserCircle2 className="h-5 w-5 text-primary" />
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
-          onClick={() => signOut({ redirectUrl: `${basePath || "/"}/` })}
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </Button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground truncate">
+              {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] || "User"}
+            </p>
+            <RoleBadge />
+          </div>
+          <p className="text-xs text-muted-foreground truncate">
+            {user?.emailAddresses?.[0]?.emailAddress}
+          </p>
+        </div>
       </div>
-    </Show>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+        onClick={() => signOut({ redirectUrl: `${basePath || "/"}/` })}
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </Button>
+    </div>
   );
 
   const ModeToggle = ({ id }: { id: string }) => (
     <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border">
-      <Label htmlFor={id} className="text-sm font-medium cursor-pointer">
-        {mode === "portal" ? "Customer Portal" : "Seller Mode"}
-      </Label>
+      <div className="flex items-center gap-1.5">
+        {mode === "portal" ? <Users className="h-3.5 w-3.5 text-muted-foreground" /> : <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />}
+        <Label htmlFor={id} className="text-sm font-medium cursor-pointer">
+          {mode === "portal" ? "Customer Portal" : "Seller Mode"}
+        </Label>
+      </div>
       <Switch checked={mode === "portal"} onCheckedChange={toggleMode} id={id} />
     </div>
+  );
+
+  const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => (
+    <>
+      <nav className="flex-1 space-y-2">
+        <NavLinks onNavigate={onNavigate} />
+      </nav>
+
+      {user ? (
+        <div className="space-y-3">
+          {isSeller && (
+            <ModeToggle id={`mode-toggle-${onNavigate ? "mobile" : "desktop"}`} />
+          )}
+          <UserFooter />
+        </div>
+      ) : (
+        <div className="mt-auto pt-4 border-t space-y-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => { setLocation("/sign-in"); onNavigate?.(); }}
+          >
+            Sign In
+          </Button>
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={() => { setLocation("/sign-up"); onNavigate?.(); }}
+          >
+            Sign Up
+          </Button>
+        </div>
+      )}
+    </>
   );
 
   return (
@@ -131,24 +183,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Store className="h-8 w-8" />
               SocialSeller
             </div>
-            <nav className="flex-1 space-y-2">
-              <NavLinks />
-            </nav>
-            {mode === "portal" ? (
-              <PortalUserFooter />
-            ) : (
-              <div className="pt-4 border-t">
-                <ModeToggle id="mobile-mode-toggle" />
-              </div>
-            )}
-            {mode === "seller" && null}
-            {mode === "portal" && (
-              <Show when="signed-out">
-                <div className="pt-4 border-t">
-                  <ModeToggle id="mobile-mode-toggle-out" />
-                </div>
-              </Show>
-            )}
+            <SidebarContent onNavigate={() => {}} />
           </SheetContent>
         </Sheet>
       </div>
@@ -159,25 +194,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Store className="h-8 w-8 text-secondary" />
           <span>Social<span className="text-foreground">Seller</span></span>
         </div>
-        <nav className="flex-1 space-y-2">
-          <NavLinks />
-        </nav>
-        {mode === "portal" ? (
-          <>
-            <Show when="signed-in">
-              <PortalUserFooter />
-            </Show>
-            <Show when="signed-out">
-              <div className="mt-auto pt-4 border-t">
-                <ModeToggle id="desktop-mode-toggle-out" />
-              </div>
-            </Show>
-          </>
-        ) : (
-          <div className="mt-auto pt-4 border-t">
-            <ModeToggle id="desktop-mode-toggle" />
-          </div>
-        )}
+        <SidebarContent />
       </aside>
 
       {/* Main Content */}

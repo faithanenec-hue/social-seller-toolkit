@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
-import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
+import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useRole, isSellerOrAdmin } from "@/hooks/useRole";
+import { useUser } from "@clerk/react";
 
 import Layout from "@/components/layout";
 import Dashboard from "@/pages/dashboard";
@@ -15,6 +17,7 @@ import Broadcasts from "@/pages/broadcasts";
 import BroadcastsGenerate from "@/pages/broadcasts-generate";
 import Orders from "@/pages/orders";
 import OrderDetail from "@/pages/order-detail";
+import SellerAccess from "@/pages/seller-access";
 
 import PortalDashboard from "@/pages/portal-dashboard";
 import PortalOrders from "@/pages/portal-orders";
@@ -109,7 +112,7 @@ function SignInPage() {
         routing="path"
         path={`${basePath}/sign-in`}
         signUpUrl={`${basePath}/sign-up`}
-        fallbackRedirectUrl={`${basePath}/portal`}
+        fallbackRedirectUrl={`${basePath}/`}
       />
     </div>
   );
@@ -128,14 +131,130 @@ function SignUpPage() {
   );
 }
 
-function PortalGuard({ children }: { children: React.ReactNode }) {
+function HomeRedirect() {
+  const { role, isLoaded, isSignedIn } = useRole();
+
+  if (!isLoaded) return null;
+
+  if (isSignedIn && !isSellerOrAdmin(role)) {
+    return <Redirect to="/portal" />;
+  }
+
   return (
-    <>
-      <Show when="signed-in">{children}</Show>
-      <Show when="signed-out">
+    <Layout>
+      <SellerGuardContent>
+        <Dashboard />
+      </SellerGuardContent>
+    </Layout>
+  );
+}
+
+function SellerGuardContent({ children }: { children: React.ReactNode }) {
+  const { role, isLoaded, isSignedIn } = useRole();
+  const [, setLocation] = useLocation();
+
+  if (!isLoaded) return null;
+
+  if (!isSignedIn) {
+    return <SellerSignInPrompt />;
+  }
+
+  if (!isSellerOrAdmin(role)) {
+    return <AccessDeniedPage />;
+  }
+
+  return <>{children}</>;
+}
+
+function SellerRoute({ children }: { children: React.ReactNode }) {
+  return (
+    <Layout>
+      <SellerGuardContent>{children}</SellerGuardContent>
+    </Layout>
+  );
+}
+
+function PortalGuard({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn } = useRole();
+
+  if (!isLoaded) return null;
+
+  if (!isSignedIn) {
+    return (
+      <Layout>
         <PortalSignInPrompt />
-      </Show>
-    </>
+      </Layout>
+    );
+  }
+
+  return <Layout>{children}</Layout>;
+}
+
+function SellerSignInPrompt() {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
+      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold text-foreground mb-2">Seller sign-in required</h2>
+      <p className="text-muted-foreground mb-8 max-w-sm">
+        Sign in to your seller account to access the dashboard, captions, broadcasts, and orders.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={() => setLocation("/sign-in")}
+          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Sign In
+        </button>
+        <button
+          onClick={() => setLocation("/sign-up")}
+          className="px-6 py-2.5 border border-border rounded-lg font-semibold text-foreground hover:bg-muted transition-colors"
+        >
+          Create Account
+        </button>
+      </div>
+      <p className="mt-6 text-sm text-muted-foreground">
+        Customer?{" "}
+        <button onClick={() => setLocation("/portal")} className="text-primary hover:underline font-medium">
+          Go to Customer Portal
+        </button>
+      </p>
+    </div>
+  );
+}
+
+function AccessDeniedPage() {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
+      <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold text-foreground mb-2">Seller access required</h2>
+      <p className="text-muted-foreground mb-8 max-w-sm">
+        Your account doesn't have seller access yet. Use an invite code to unlock the seller dashboard.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={() => setLocation("/seller-access")}
+          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Claim Seller Access
+        </button>
+        <button
+          onClick={() => setLocation("/portal")}
+          className="px-6 py-2.5 border border-border rounded-lg font-semibold text-foreground hover:bg-muted transition-colors"
+        >
+          Customer Portal
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -194,34 +313,47 @@ function AppRoutes() {
     <Switch>
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
+      <Route path="/seller-access" component={SellerAccess} />
+
+      <Route path="/" component={HomeRedirect} />
+
+      <Route path="/captions">
+        <SellerRoute><Captions /></SellerRoute>
+      </Route>
+      <Route path="/captions/generate">
+        <SellerRoute><CaptionsGenerate /></SellerRoute>
+      </Route>
+      <Route path="/broadcasts">
+        <SellerRoute><Broadcasts /></SellerRoute>
+      </Route>
+      <Route path="/broadcasts/generate">
+        <SellerRoute><BroadcastsGenerate /></SellerRoute>
+      </Route>
+      <Route path="/orders">
+        <SellerRoute><Orders /></SellerRoute>
+      </Route>
+      <Route path="/orders/:id">
+        <SellerRoute><OrderDetail /></SellerRoute>
+      </Route>
+
+      <Route path="/portal">
+        <PortalGuard><PortalDashboard /></PortalGuard>
+      </Route>
+      <Route path="/portal/orders">
+        <PortalGuard><PortalOrders /></PortalGuard>
+      </Route>
+      <Route path="/portal/orders/:id">
+        <PortalGuard><PortalOrderDetail /></PortalGuard>
+      </Route>
+      <Route path="/portal/wishlist">
+        <PortalGuard><PortalWishlist /></PortalGuard>
+      </Route>
+      <Route path="/portal/loyalty">
+        <PortalGuard><PortalLoyalty /></PortalGuard>
+      </Route>
+
       <Route>
-        <Layout>
-          <Switch>
-            <Route path="/" component={Dashboard} />
-            <Route path="/captions" component={Captions} />
-            <Route path="/captions/generate" component={CaptionsGenerate} />
-            <Route path="/broadcasts" component={Broadcasts} />
-            <Route path="/broadcasts/generate" component={BroadcastsGenerate} />
-            <Route path="/orders" component={Orders} />
-            <Route path="/orders/:id" component={OrderDetail} />
-            <Route path="/portal">
-              <PortalGuard><PortalDashboard /></PortalGuard>
-            </Route>
-            <Route path="/portal/orders">
-              <PortalGuard><PortalOrders /></PortalGuard>
-            </Route>
-            <Route path="/portal/orders/:id">
-              {(params) => <PortalGuard><PortalOrderDetail /></PortalGuard>}
-            </Route>
-            <Route path="/portal/wishlist">
-              <PortalGuard><PortalWishlist /></PortalGuard>
-            </Route>
-            <Route path="/portal/loyalty">
-              <PortalGuard><PortalLoyalty /></PortalGuard>
-            </Route>
-            <Route component={NotFound} />
-          </Switch>
-        </Layout>
+        <Layout><NotFound /></Layout>
       </Route>
     </Switch>
   );
@@ -241,7 +373,7 @@ function ClerkProviderWithRoutes() {
         signIn: {
           start: {
             title: "Welcome back",
-            subtitle: "Sign in to your customer account",
+            subtitle: "Sign in to your account",
           },
         },
         signUp: {

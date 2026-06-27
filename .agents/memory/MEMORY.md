@@ -1,0 +1,1 @@
+- [Role-based auth](role-based-auth.md) — Seller/Admin/Customer roles via Clerk publicMetadata; roles fetched from Clerk API on backend (not JWT claims); invite code in SELLER_INVITE_CODE env var.
