@@ -15,6 +15,7 @@ import {
   UserCircle2,
   ShieldCheck,
   Users,
+  Crown,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: "Captions", path: "/captions", icon: MessageSquareText },
     { name: "Broadcasts", path: "/broadcasts", icon: Megaphone },
     { name: "Orders", path: "/orders", icon: ShoppingBag },
+    ...(role === "admin" ? [{ name: "Admin Panel", path: "/admin", icon: Crown }] : []),
   ];
 
   const portalNav = [

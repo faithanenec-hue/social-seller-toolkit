@@ -18,6 +18,7 @@ import BroadcastsGenerate from "@/pages/broadcasts-generate";
 import Orders from "@/pages/orders";
 import OrderDetail from "@/pages/order-detail";
 import SellerAccess from "@/pages/seller-access";
+import AdminPanel from "@/pages/admin";
 
 import PortalDashboard from "@/pages/portal-dashboard";
 import PortalOrders from "@/pages/portal-orders";
@@ -314,6 +315,9 @@ function AppRoutes() {
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/seller-access" component={SellerAccess} />
+      <Route path="/admin">
+        <SellerRoute><AdminPanel /></SellerRoute>
+      </Route>
 
       <Route path="/" component={HomeRedirect} />
 
