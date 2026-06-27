@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sparkles, Copy, Check, RefreshCw, ChevronLeft } from "lucide-react";
+import { Sparkles, Copy, Check, RefreshCw, ChevronLeft, AlertCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,7 +44,23 @@ export default function CaptionsGenerate() {
       toast({ title: "Please fill in all fields", variant: "destructive" });
       return;
     }
-    generate.mutate({ data: { productName, niche, tone, promotionGoal: goal, platforms } });
+    generate.mutate(
+      { data: { productName, niche, tone, promotionGoal: goal, platforms } },
+      {
+        onSuccess: (data) => {
+          if (data.captions.length > 0) {
+            toast({ title: `${data.captions.length} caption${data.captions.length > 1 ? "s" : ""} generated!` });
+          }
+        },
+        onError: (err) => {
+          toast({
+            title: "Generation failed",
+            description: err instanceof Error ? err.message : "Something went wrong. Please try again.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const handleCopy = (platform: string, text: string) => {
@@ -181,7 +197,20 @@ export default function CaptionsGenerate() {
             </>
           )}
 
-          {!generate.isPending && results.length === 0 && (
+          {generate.isError && (
+            <div className="flex flex-col items-center justify-center h-48 text-center border-2 border-dashed border-destructive/30 rounded-xl bg-destructive/5">
+              <AlertCircle className="h-8 w-8 mb-3 text-destructive opacity-70" />
+              <p className="font-medium text-destructive">Generation failed</p>
+              <p className="text-sm mt-1 text-muted-foreground max-w-xs">
+                {generate.error instanceof Error ? generate.error.message : "Something went wrong. Please try again."}
+              </p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={handleGenerate}>
+                Try again
+              </Button>
+            </div>
+          )}
+
+          {!generate.isPending && !generate.isError && results.length === 0 && (
             <div className="flex flex-col items-center justify-center h-48 text-center text-muted-foreground border-2 border-dashed rounded-xl">
               <Sparkles className="h-8 w-8 mb-3 opacity-30" />
               <p className="font-medium">Your captions will appear here</p>

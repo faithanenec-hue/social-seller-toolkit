@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Copy, Check, RefreshCw, ChevronLeft, MessageSquare } from "lucide-react";
+import { Sparkles, Copy, Check, RefreshCw, ChevronLeft, MessageSquare, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const NICHES = ["Fashion", "Hair", "Food", "Jewellery", "Beauty", "Electronics"];
@@ -31,16 +31,30 @@ export default function BroadcastsGenerate() {
       toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-    generate.mutate({
-      data: {
-        niche,
-        promotionType,
-        audience,
-        discountPercentage: discount ? parseInt(discount) : null,
-        productName,
-        businessName,
+    generate.mutate(
+      {
+        data: {
+          niche,
+          promotionType,
+          audience,
+          discountPercentage: discount ? parseInt(discount) : null,
+          productName,
+          businessName,
+        },
       },
-    });
+      {
+        onSuccess: () => {
+          toast({ title: "Broadcast message generated!" });
+        },
+        onError: (err) => {
+          toast({
+            title: "Generation failed",
+            description: err instanceof Error ? err.message : "Something went wrong. Please try again.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const handleCopy = () => {
@@ -174,7 +188,20 @@ export default function BroadcastsGenerate() {
             </Card>
           )}
 
-          {!generate.isPending && !generate.data && (
+          {generate.isError && (
+            <div className="flex flex-col items-center justify-center h-48 text-center border-2 border-dashed border-destructive/30 rounded-xl bg-destructive/5">
+              <AlertCircle className="h-8 w-8 mb-3 text-destructive opacity-70" />
+              <p className="font-medium text-destructive">Generation failed</p>
+              <p className="text-sm mt-1 text-muted-foreground max-w-xs">
+                {generate.error instanceof Error ? generate.error.message : "Something went wrong. Please try again."}
+              </p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={handleGenerate}>
+                Try again
+              </Button>
+            </div>
+          )}
+
+          {!generate.isPending && !generate.isError && !generate.data && (
             <div className="flex flex-col items-center justify-center h-48 text-center text-muted-foreground border-2 border-dashed rounded-xl">
               <MessageSquare className="h-8 w-8 mb-3 opacity-30" />
               <p className="font-medium">Your broadcast will appear here</p>
