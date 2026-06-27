@@ -23,6 +23,8 @@ tags:
     description: Customer loyalty rewards
   - name: analytics
     description: Seller analytics
+  - name: collections
+    description: Caption collection operations
 
 paths:
   /healthz:
@@ -291,6 +293,196 @@ paths:
                 $ref: "#/components/schemas/BroadcastTemplate"
         "404":
           description: Not found
+
+  /broadcasts/{id}/stats:
+    patch:
+      operationId: updateBroadcastStats
+      tags: [broadcasts]
+      summary: Update broadcast engagement stats manually
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastStatsUpdate"
+      responses:
+        "200":
+          description: Updated broadcast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BroadcastTemplate"
+        "404":
+          description: Not found
+
+  /broadcasts/{id}/schedule:
+    patch:
+      operationId: scheduleBroadcast
+      tags: [broadcasts]
+      summary: Schedule or mark a broadcast as sent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastScheduleInput"
+      responses:
+        "200":
+          description: Updated broadcast
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BroadcastTemplate"
+        "404":
+          description: Not found
+
+  /collections:
+    get:
+      operationId: listCollections
+      tags: [collections]
+      summary: List all caption collections
+      responses:
+        "200":
+          description: Collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Collection"
+    post:
+      operationId: createCollection
+      tags: [collections]
+      summary: Create a caption collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+
+  /collections/{id}:
+    get:
+      operationId: getCollection
+      tags: [collections]
+      summary: Get a collection with its captions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Collection with captions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionWithCaptions"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateCollection
+      tags: [collections]
+      summary: Update a collection name or description
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionInput"
+      responses:
+        "200":
+          description: Updated collection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCollection
+      tags: [collections]
+      summary: Delete a collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /collections/{id}/captions:
+    post:
+      operationId: addCaptionToCollection
+      tags: [collections]
+      summary: Add a caption to a collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCaptionToCollectionInput"
+      responses:
+        "201":
+          description: Added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionItem"
+
+  /collections/{id}/captions/{captionId}:
+    delete:
+      operationId: removeCaptionFromCollection
+      tags: [collections]
+      summary: Remove a caption from a collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: captionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
 
   /products:
     get:
@@ -722,6 +914,18 @@ components:
           type: string
         usageCount:
           type: integer
+        sentCount:
+          type: integer
+        openCount:
+          type: integer
+        clickCount:
+          type: integer
+        scheduledAt:
+          type: ["string", "null"]
+          format: date-time
+        sentAt:
+          type: ["string", "null"]
+          format: date-time
         createdAt:
           type: string
           format: date-time
@@ -732,6 +936,9 @@ components:
         - category
         - niche
         - usageCount
+        - sentCount
+        - openCount
+        - clickCount
         - createdAt
 
     BroadcastInput:
@@ -745,11 +952,38 @@ components:
           type: string
         niche:
           type: string
+        scheduledAt:
+          type: string
+          format: date-time
       required:
         - title
         - message
         - category
         - niche
+
+    BroadcastStatsUpdate:
+      type: object
+      properties:
+        sentCount:
+          type: integer
+        openCount:
+          type: integer
+        clickCount:
+          type: integer
+      required:
+        - sentCount
+        - openCount
+        - clickCount
+
+    BroadcastScheduleInput:
+      type: object
+      properties:
+        scheduledAt:
+          type: ["string", "null"]
+          format: date-time
+        sentAt:
+          type: ["string", "null"]
+          format: date-time
 
     BroadcastGenerateInput:
       type: object
@@ -1123,3 +1357,81 @@ components:
         - date
         - revenue
         - orders
+
+    Collection:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        captionCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - captionCount
+        - createdAt
+
+    CollectionInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+
+    CollectionWithCaptions:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        captions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Caption"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - captions
+        - createdAt
+
+    CollectionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        collectionId:
+          type: integer
+        captionId:
+          type: integer
+        addedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - collectionId
+        - captionId
+        - addedAt
+
+    AddCaptionToCollectionInput:
+      type: object
+      properties:
+        captionId:
+          type: integer
+      required:
+        - captionId

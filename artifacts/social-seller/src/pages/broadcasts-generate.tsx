@@ -1,21 +1,25 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useGenerateBroadcast } from "@workspace/api-client-react";
+import { useGenerateBroadcast, useCreateBroadcast, getListBroadcastsQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Copy, Check, RefreshCw, ChevronLeft, MessageSquare, AlertCircle } from "lucide-react";
+import { Sparkles, Copy, Check, RefreshCw, ChevronLeft, MessageSquare, AlertCircle, BookmarkPlus, CalendarClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const NICHES = ["Fashion", "Hair", "Food", "Jewellery", "Beauty", "Electronics"];
 const PROMO_TYPES = ["Flash Sale", "New Arrival", "Restock", "Holiday Promotion", "Re-engagement", "Customer Appreciation", "Payment Reminder"];
 const AUDIENCES = ["All Customers", "VIP Customers", "New Customers", "Inactive Customers", "Subscribers"];
+const CATEGORIES = ["Welcome", "New Arrival", "Flash Sale", "Restock", "Holiday", "Payment Reminder", "Delivery Update", "Customer Appreciation", "Re-engagement"];
 
 export default function BroadcastsGenerate() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const [niche, setNiche] = useState("");
   const [promotionType, setPromotionType] = useState("");
   const [audience, setAudience] = useState("");
@@ -24,13 +28,30 @@ export default function BroadcastsGenerate() {
   const [businessName, setBusinessName] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [category, setCategory] = useState("");
+  const [savedToLibrary, setSavedToLibrary] = useState(false);
+
   const generate = useGenerateBroadcast();
+  const createBroadcast = useCreateBroadcast({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListBroadcastsQueryKey() });
+        setSavedToLibrary(true);
+        toast({ title: scheduleDate ? "Broadcast scheduled!" : "Saved to library!" });
+      },
+      onError: () => {
+        toast({ title: "Failed to save broadcast", variant: "destructive" });
+      },
+    },
+  });
 
   const handleGenerate = () => {
     if (!niche || !promotionType || !audience || !productName || !businessName) {
       toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
+    setSavedToLibrary(false);
     generate.mutate(
       {
         data: {
@@ -55,6 +76,19 @@ export default function BroadcastsGenerate() {
         },
       }
     );
+  };
+
+  const handleSaveToLibrary = () => {
+    if (!generate.data) return;
+    createBroadcast.mutate({
+      data: {
+        title: generate.data.subject || `${promotionType} — ${businessName}`,
+        message: generate.data.message,
+        category: category || promotionType.split(" ")[0],
+        niche,
+        ...(scheduleDate && { scheduledAt: new Date(scheduleDate).toISOString() }),
+      },
+    });
   };
 
   const handleCopy = () => {
@@ -158,34 +192,84 @@ export default function BroadcastsGenerate() {
           )}
 
           {generate.data && (
-            <Card className="border-primary/30 bg-primary/5">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base text-primary">{generate.data.subject}</CardTitle>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="ghost" onClick={handleGenerate} className="gap-1 text-xs" data-testid="btn-regenerate">
-                      <RefreshCw className="h-3 w-3" />Redo
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={copied ? "default" : "outline"}
-                      className="gap-1.5 text-xs"
-                      onClick={handleCopy}
-                      data-testid="btn-copy-broadcast"
-                    >
-                      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                      {copied ? "Copied!" : "Copy Message"}
-                    </Button>
+            <>
+              <Card className="border-primary/30 bg-primary/5">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base text-primary">{generate.data.subject}</CardTitle>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="ghost" onClick={handleGenerate} className="gap-1 text-xs" data-testid="btn-regenerate">
+                        <RefreshCw className="h-3 w-3" />Redo
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={copied ? "default" : "outline"}
+                        className="gap-1.5 text-xs"
+                        onClick={handleCopy}
+                        data-testid="btn-copy-broadcast"
+                      >
+                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                        {copied ? "Copied!" : "Copy Message"}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-background rounded-lg p-4 border border-border/50">
-                  <p className="text-sm leading-relaxed whitespace-pre-line font-mono">{generate.data.message}</p>
-                </div>
-                <p className="text-xs text-muted-foreground mt-3">Ready to paste into WhatsApp Business broadcast</p>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-background rounded-lg p-4 border border-border/50">
+                    <p className="text-sm leading-relaxed whitespace-pre-line font-mono">{generate.data.message}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">Ready to paste into WhatsApp Business broadcast</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/60">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <BookmarkPlus className="h-4 w-4 text-primary" />
+                    Save to Library
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Category</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Auto-detect from promotion type" /></SelectTrigger>
+                      <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                      <CalendarClock className="h-3.5 w-3.5" />
+                      Schedule for (optional)
+                    </Label>
+                    <Input
+                      type="datetime-local"
+                      value={scheduleDate}
+                      onChange={(e) => setScheduleDate(e.target.value)}
+                      className="h-8 text-xs"
+                      data-testid="input-schedule-date"
+                    />
+                  </div>
+                  <Button
+                    className="w-full gap-2"
+                    variant={savedToLibrary ? "secondary" : "default"}
+                    onClick={handleSaveToLibrary}
+                    disabled={createBroadcast.isPending || savedToLibrary}
+                    data-testid="btn-save-to-library"
+                  >
+                    {createBroadcast.isPending ? (
+                      <><RefreshCw className="h-3.5 w-3.5 animate-spin" />Saving...</>
+                    ) : savedToLibrary ? (
+                      <><Check className="h-3.5 w-3.5" />Saved!</>
+                    ) : scheduleDate ? (
+                      <><CalendarClock className="h-3.5 w-3.5" />Save & Schedule</>
+                    ) : (
+                      <><BookmarkPlus className="h-3.5 w-3.5" />Save to Library</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </>
           )}
 
           {generate.isError && (

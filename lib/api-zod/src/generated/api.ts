@@ -194,6 +194,11 @@ export const ListBroadcastsResponseItem = zod.object({
   "category": zod.string(),
   "niche": zod.string(),
   "usageCount": zod.number(),
+  "sentCount": zod.number(),
+  "openCount": zod.number(),
+  "clickCount": zod.number(),
+  "scheduledAt": zod.coerce.date().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
 export const ListBroadcastsResponse = zod.array(ListBroadcastsResponseItem)
@@ -206,7 +211,8 @@ export const CreateBroadcastBody = zod.object({
   "title": zod.string(),
   "message": zod.string(),
   "category": zod.string(),
-  "niche": zod.string()
+  "niche": zod.string(),
+  "scheduledAt": zod.coerce.date().optional()
 })
 
 export const CreateBroadcastResponse = zod.object({
@@ -216,6 +222,11 @@ export const CreateBroadcastResponse = zod.object({
   "category": zod.string(),
   "niche": zod.string(),
   "usageCount": zod.number(),
+  "sentCount": zod.number(),
+  "openCount": zod.number(),
+  "clickCount": zod.number(),
+  "scheduledAt": zod.coerce.date().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -249,8 +260,188 @@ export const GetBroadcastResponse = zod.object({
   "category": zod.string(),
   "niche": zod.string(),
   "usageCount": zod.number(),
+  "sentCount": zod.number(),
+  "openCount": zod.number(),
+  "clickCount": zod.number(),
+  "scheduledAt": zod.coerce.date().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
+
+
+/**
+ * @summary Update broadcast engagement stats manually
+ */
+export const UpdateBroadcastStatsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateBroadcastStatsBody = zod.object({
+  "sentCount": zod.number(),
+  "openCount": zod.number(),
+  "clickCount": zod.number()
+})
+
+export const UpdateBroadcastStatsResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "category": zod.string(),
+  "niche": zod.string(),
+  "usageCount": zod.number(),
+  "sentCount": zod.number(),
+  "openCount": zod.number(),
+  "clickCount": zod.number(),
+  "scheduledAt": zod.coerce.date().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Schedule or mark a broadcast as sent
+ */
+export const ScheduleBroadcastParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ScheduleBroadcastBody = zod.object({
+  "scheduledAt": zod.coerce.date().nullish(),
+  "sentAt": zod.coerce.date().nullish()
+})
+
+export const ScheduleBroadcastResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "category": zod.string(),
+  "niche": zod.string(),
+  "usageCount": zod.number(),
+  "sentCount": zod.number(),
+  "openCount": zod.number(),
+  "clickCount": zod.number(),
+  "scheduledAt": zod.coerce.date().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List all caption collections
+ */
+export const ListCollectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "captionCount": zod.number(),
+  "createdAt": zod.coerce.date()
+})
+export const ListCollectionsResponse = zod.array(ListCollectionsResponseItem)
+
+
+/**
+ * @summary Create a caption collection
+ */
+export const CreateCollectionBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().optional()
+})
+
+export const CreateCollectionResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "captionCount": zod.number(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get a collection with its captions
+ */
+export const GetCollectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCollectionResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "captions": zod.array(zod.object({
+  "id": zod.number(),
+  "text": zod.string(),
+  "niche": zod.string(),
+  "tone": zod.string(),
+  "platform": zod.string(),
+  "type": zod.string(),
+  "category": zod.string(),
+  "usageCount": zod.number(),
+  "isSaved": zod.boolean(),
+  "createdAt": zod.coerce.date()
+})),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a collection name or description
+ */
+export const UpdateCollectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateCollectionBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().optional()
+})
+
+export const UpdateCollectionResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "captionCount": zod.number(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a collection
+ */
+export const DeleteCollectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCollectionResponse = zod.void()
+
+
+/**
+ * @summary Add a caption to a collection
+ */
+export const AddCaptionToCollectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AddCaptionToCollectionBody = zod.object({
+  "captionId": zod.number()
+})
+
+export const AddCaptionToCollectionResponse = zod.object({
+  "id": zod.number(),
+  "collectionId": zod.number(),
+  "captionId": zod.number(),
+  "addedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove a caption from a collection
+ */
+export const RemoveCaptionFromCollectionParams = zod.object({
+  "id": zod.coerce.number(),
+  "captionId": zod.coerce.number()
+})
+
+export const RemoveCaptionFromCollectionResponse = zod.void()
 
 
 /**

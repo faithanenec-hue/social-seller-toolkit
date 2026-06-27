@@ -6,10 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface BroadcastInput {
-  title: string;
-  message: string;
-  category: string;
-  niche: string;
-  scheduledAt?: Date;
+export interface CollectionInput {
+  name: string;
+  description?: string;
 }

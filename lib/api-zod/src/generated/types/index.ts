@@ -6,14 +6,21 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './addCaptionToCollectionInput';
 export * from './analyticsOverview';
 export * from './broadcastGenerateInput';
 export * from './broadcastInput';
+export * from './broadcastScheduleInput';
+export * from './broadcastStatsUpdate';
 export * from './broadcastTemplate';
 export * from './caption';
 export * from './captionGenerateInput';
 export * from './captionInput';
 export * from './captionListResponse';
+export * from './collection';
+export * from './collectionInput';
+export * from './collectionItem';
+export * from './collectionWithCaptions';
 export * from './dayStat';
 export * from './generatedBroadcast';
 export * from './generatedCaption';

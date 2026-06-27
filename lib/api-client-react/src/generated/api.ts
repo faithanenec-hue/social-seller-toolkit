@@ -20,14 +20,21 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AddCaptionToCollectionInput,
   AnalyticsOverview,
   BroadcastGenerateInput,
   BroadcastInput,
+  BroadcastScheduleInput,
+  BroadcastStatsUpdate,
   BroadcastTemplate,
   Caption,
   CaptionGenerateInput,
   CaptionInput,
   CaptionListResponse,
+  Collection,
+  CollectionInput,
+  CollectionItem,
+  CollectionWithCaptions,
   GeneratedBroadcast,
   GeneratedCaptions,
   HealthStatus,
@@ -1046,6 +1053,656 @@ export function useGetBroadcast<TData = Awaited<ReturnType<typeof getBroadcast>>
 
 
 
+
+export const getUpdateBroadcastStatsUrl = (id: number,) => {
+
+
+
+
+  return `/api/broadcasts/${id}/stats`
+}
+
+/**
+ * @summary Update broadcast engagement stats manually
+ */
+export const updateBroadcastStats = async (id: number,
+    broadcastStatsUpdate: BroadcastStatsUpdate, options?: RequestInit): Promise<BroadcastTemplate> => {
+
+  return customFetch<BroadcastTemplate>(getUpdateBroadcastStatsUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(broadcastStatsUpdate)
+  }
+);}
+
+
+
+
+export const getUpdateBroadcastStatsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBroadcastStats>>, TError,{id: number;data: BodyType<BroadcastStatsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateBroadcastStats>>, TError,{id: number;data: BodyType<BroadcastStatsUpdate>}, TContext> => {
+
+const mutationKey = ['updateBroadcastStats'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateBroadcastStats>>, {id: number;data: BodyType<BroadcastStatsUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateBroadcastStats(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateBroadcastStatsMutationResult = NonNullable<Awaited<ReturnType<typeof updateBroadcastStats>>>
+    export type UpdateBroadcastStatsMutationBody = BodyType<BroadcastStatsUpdate>
+    export type UpdateBroadcastStatsMutationError = ErrorType<void>
+
+    /**
+ * @summary Update broadcast engagement stats manually
+ */
+export const useUpdateBroadcastStats = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBroadcastStats>>, TError,{id: number;data: BodyType<BroadcastStatsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateBroadcastStats>>,
+        TError,
+        {id: number;data: BodyType<BroadcastStatsUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateBroadcastStatsMutationOptions(options));
+    }
+
+export const getScheduleBroadcastUrl = (id: number,) => {
+
+
+
+
+  return `/api/broadcasts/${id}/schedule`
+}
+
+/**
+ * @summary Schedule or mark a broadcast as sent
+ */
+export const scheduleBroadcast = async (id: number,
+    broadcastScheduleInput: BroadcastScheduleInput, options?: RequestInit): Promise<BroadcastTemplate> => {
+
+  return customFetch<BroadcastTemplate>(getScheduleBroadcastUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(broadcastScheduleInput)
+  }
+);}
+
+
+
+
+export const getScheduleBroadcastMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scheduleBroadcast>>, TError,{id: number;data: BodyType<BroadcastScheduleInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof scheduleBroadcast>>, TError,{id: number;data: BodyType<BroadcastScheduleInput>}, TContext> => {
+
+const mutationKey = ['scheduleBroadcast'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof scheduleBroadcast>>, {id: number;data: BodyType<BroadcastScheduleInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  scheduleBroadcast(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ScheduleBroadcastMutationResult = NonNullable<Awaited<ReturnType<typeof scheduleBroadcast>>>
+    export type ScheduleBroadcastMutationBody = BodyType<BroadcastScheduleInput>
+    export type ScheduleBroadcastMutationError = ErrorType<void>
+
+    /**
+ * @summary Schedule or mark a broadcast as sent
+ */
+export const useScheduleBroadcast = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scheduleBroadcast>>, TError,{id: number;data: BodyType<BroadcastScheduleInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof scheduleBroadcast>>,
+        TError,
+        {id: number;data: BodyType<BroadcastScheduleInput>},
+        TContext
+      > => {
+      return useMutation(getScheduleBroadcastMutationOptions(options));
+    }
+
+export const getListCollectionsUrl = () => {
+
+
+
+
+  return `/api/collections`
+}
+
+/**
+ * @summary List all caption collections
+ */
+export const listCollections = async ( options?: RequestInit): Promise<Collection[]> => {
+
+  return customFetch<Collection[]>(getListCollectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCollectionsQueryKey = () => {
+    return [
+    `/api/collections`
+    ] as const;
+    }
+
+
+export const getListCollectionsQueryOptions = <TData = Awaited<ReturnType<typeof listCollections>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCollections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCollectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCollections>>> = ({ signal }) => listCollections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCollections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCollectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listCollections>>>
+export type ListCollectionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all caption collections
+ */
+
+export function useListCollections<TData = Awaited<ReturnType<typeof listCollections>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCollections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCollectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCollectionUrl = () => {
+
+
+
+
+  return `/api/collections`
+}
+
+/**
+ * @summary Create a caption collection
+ */
+export const createCollection = async (collectionInput: CollectionInput, options?: RequestInit): Promise<Collection> => {
+
+  return customFetch<Collection>(getCreateCollectionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(collectionInput)
+  }
+);}
+
+
+
+
+export const getCreateCollectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCollection>>, TError,{data: BodyType<CollectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCollection>>, TError,{data: BodyType<CollectionInput>}, TContext> => {
+
+const mutationKey = ['createCollection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCollection>>, {data: BodyType<CollectionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCollection(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCollectionMutationResult = NonNullable<Awaited<ReturnType<typeof createCollection>>>
+    export type CreateCollectionMutationBody = BodyType<CollectionInput>
+    export type CreateCollectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a caption collection
+ */
+export const useCreateCollection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCollection>>, TError,{data: BodyType<CollectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCollection>>,
+        TError,
+        {data: BodyType<CollectionInput>},
+        TContext
+      > => {
+      return useMutation(getCreateCollectionMutationOptions(options));
+    }
+
+export const getGetCollectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/collections/${id}`
+}
+
+/**
+ * @summary Get a collection with its captions
+ */
+export const getCollection = async (id: number, options?: RequestInit): Promise<CollectionWithCaptions> => {
+
+  return customFetch<CollectionWithCaptions>(getGetCollectionUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCollectionQueryKey = (id: number,) => {
+    return [
+    `/api/collections/${id}`
+    ] as const;
+    }
+
+
+export const getGetCollectionQueryOptions = <TData = Awaited<ReturnType<typeof getCollection>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCollection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCollectionQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCollection>>> = ({ signal }) => getCollection(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCollection>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCollectionQueryResult = NonNullable<Awaited<ReturnType<typeof getCollection>>>
+export type GetCollectionQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a collection with its captions
+ */
+
+export function useGetCollection<TData = Awaited<ReturnType<typeof getCollection>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCollection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCollectionQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateCollectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/collections/${id}`
+}
+
+/**
+ * @summary Update a collection name or description
+ */
+export const updateCollection = async (id: number,
+    collectionInput: CollectionInput, options?: RequestInit): Promise<Collection> => {
+
+  return customFetch<Collection>(getUpdateCollectionUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(collectionInput)
+  }
+);}
+
+
+
+
+export const getUpdateCollectionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCollection>>, TError,{id: number;data: BodyType<CollectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCollection>>, TError,{id: number;data: BodyType<CollectionInput>}, TContext> => {
+
+const mutationKey = ['updateCollection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCollection>>, {id: number;data: BodyType<CollectionInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCollection(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCollectionMutationResult = NonNullable<Awaited<ReturnType<typeof updateCollection>>>
+    export type UpdateCollectionMutationBody = BodyType<CollectionInput>
+    export type UpdateCollectionMutationError = ErrorType<void>
+
+    /**
+ * @summary Update a collection name or description
+ */
+export const useUpdateCollection = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCollection>>, TError,{id: number;data: BodyType<CollectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCollection>>,
+        TError,
+        {id: number;data: BodyType<CollectionInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateCollectionMutationOptions(options));
+    }
+
+export const getDeleteCollectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/collections/${id}`
+}
+
+/**
+ * @summary Delete a collection
+ */
+export const deleteCollection = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteCollectionUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteCollectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCollection>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCollection>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteCollection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCollection>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteCollection(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCollectionMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCollection>>>
+
+    export type DeleteCollectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a collection
+ */
+export const useDeleteCollection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCollection>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCollection>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteCollectionMutationOptions(options));
+    }
+
+export const getAddCaptionToCollectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/collections/${id}/captions`
+}
+
+/**
+ * @summary Add a caption to a collection
+ */
+export const addCaptionToCollection = async (id: number,
+    addCaptionToCollectionInput: AddCaptionToCollectionInput, options?: RequestInit): Promise<CollectionItem> => {
+
+  return customFetch<CollectionItem>(getAddCaptionToCollectionUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(addCaptionToCollectionInput)
+  }
+);}
+
+
+
+
+export const getAddCaptionToCollectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCaptionToCollection>>, TError,{id: number;data: BodyType<AddCaptionToCollectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addCaptionToCollection>>, TError,{id: number;data: BodyType<AddCaptionToCollectionInput>}, TContext> => {
+
+const mutationKey = ['addCaptionToCollection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addCaptionToCollection>>, {id: number;data: BodyType<AddCaptionToCollectionInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  addCaptionToCollection(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddCaptionToCollectionMutationResult = NonNullable<Awaited<ReturnType<typeof addCaptionToCollection>>>
+    export type AddCaptionToCollectionMutationBody = BodyType<AddCaptionToCollectionInput>
+    export type AddCaptionToCollectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Add a caption to a collection
+ */
+export const useAddCaptionToCollection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCaptionToCollection>>, TError,{id: number;data: BodyType<AddCaptionToCollectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addCaptionToCollection>>,
+        TError,
+        {id: number;data: BodyType<AddCaptionToCollectionInput>},
+        TContext
+      > => {
+      return useMutation(getAddCaptionToCollectionMutationOptions(options));
+    }
+
+export const getRemoveCaptionFromCollectionUrl = (id: number,
+    captionId: number,) => {
+
+
+
+
+  return `/api/collections/${id}/captions/${captionId}`
+}
+
+/**
+ * @summary Remove a caption from a collection
+ */
+export const removeCaptionFromCollection = async (id: number,
+    captionId: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getRemoveCaptionFromCollectionUrl(id,captionId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getRemoveCaptionFromCollectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeCaptionFromCollection>>, TError,{id: number;captionId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof removeCaptionFromCollection>>, TError,{id: number;captionId: number}, TContext> => {
+
+const mutationKey = ['removeCaptionFromCollection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeCaptionFromCollection>>, {id: number;captionId: number}> = (props) => {
+          const {id,captionId} = props ?? {};
+
+          return  removeCaptionFromCollection(id,captionId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RemoveCaptionFromCollectionMutationResult = NonNullable<Awaited<ReturnType<typeof removeCaptionFromCollection>>>
+
+    export type RemoveCaptionFromCollectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Remove a caption from a collection
+ */
+export const useRemoveCaptionFromCollection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeCaptionFromCollection>>, TError,{id: number;captionId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof removeCaptionFromCollection>>,
+        TError,
+        {id: number;captionId: number},
+        TContext
+      > => {
+      return useMutation(getRemoveCaptionFromCollectionMutationOptions(options));
+    }
 
 export const getListProductsUrl = (params?: ListProductsParams,) => {
   const normalizedParams = new URLSearchParams();

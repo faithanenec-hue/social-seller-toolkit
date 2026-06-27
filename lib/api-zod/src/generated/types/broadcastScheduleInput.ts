@@ -6,19 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface BroadcastTemplate {
-  id: number;
-  title: string;
-  message: string;
-  category: string;
-  niche: string;
-  usageCount: number;
-  sentCount: number;
-  openCount: number;
-  clickCount: number;
+export interface BroadcastScheduleInput {
   /** @nullable */
   scheduledAt?: Date | null;
   /** @nullable */
   sentAt?: Date | null;
-  createdAt: Date;
 }

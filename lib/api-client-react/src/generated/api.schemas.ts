@@ -77,6 +77,13 @@ export interface BroadcastTemplate {
   category: string;
   niche: string;
   usageCount: number;
+  sentCount: number;
+  openCount: number;
+  clickCount: number;
+  /** @nullable */
+  scheduledAt?: string | null;
+  /** @nullable */
+  sentAt?: string | null;
   createdAt: string;
 }
 
@@ -85,6 +92,20 @@ export interface BroadcastInput {
   message: string;
   category: string;
   niche: string;
+  scheduledAt?: string;
+}
+
+export interface BroadcastStatsUpdate {
+  sentCount: number;
+  openCount: number;
+  clickCount: number;
+}
+
+export interface BroadcastScheduleInput {
+  /** @nullable */
+  scheduledAt?: string | null;
+  /** @nullable */
+  sentAt?: string | null;
 }
 
 export interface BroadcastGenerateInput {
@@ -312,6 +333,40 @@ export interface AnalyticsOverview {
   topNiches: NicheStat[];
   revenueByDay: DayStat[];
   repeatPurchaseRate: number;
+}
+
+export interface Collection {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  captionCount: number;
+  createdAt: string;
+}
+
+export interface CollectionInput {
+  name: string;
+  description?: string;
+}
+
+export interface CollectionWithCaptions {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  captions: Caption[];
+  createdAt: string;
+}
+
+export interface CollectionItem {
+  id: number;
+  collectionId: number;
+  captionId: number;
+  addedAt: string;
+}
+
+export interface AddCaptionToCollectionInput {
+  captionId: number;
 }
 
 export type ListCaptionsParams = {

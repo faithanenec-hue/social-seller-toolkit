@@ -6,10 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface BroadcastInput {
-  title: string;
-  message: string;
-  category: string;
-  niche: string;
-  scheduledAt?: Date;
+export interface BroadcastStatsUpdate {
+  sentCount: number;
+  openCount: number;
+  clickCount: number;
 }

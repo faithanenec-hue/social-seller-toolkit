@@ -7,6 +7,7 @@ import ordersRouter from "./orders";
 import wishlistRouter from "./wishlist";
 import loyaltyRouter from "./loyalty";
 import analyticsRouter from "./analytics";
+import collectionsRouter from "./collections";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(ordersRouter);
 router.use(wishlistRouter);
 router.use(loyaltyRouter);
 router.use(analyticsRouter);
+router.use(collectionsRouter);
 
 export default router;
