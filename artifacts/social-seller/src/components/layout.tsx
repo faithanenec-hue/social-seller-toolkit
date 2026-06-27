@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useUser, useClerk, Show } from "@clerk/react";
 import {
   LayoutDashboard,
   MessageSquareText,
@@ -9,17 +10,23 @@ import {
   Heart,
   Gift,
   Menu,
+  LogOut,
+  UserCircle2,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const isPortal = location.startsWith("/portal");
-
   const [mode, setMode] = useState<"seller" | "portal">(isPortal ? "portal" : "seller");
+
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   const toggleMode = (checked: boolean) => {
     const newMode = checked ? "portal" : "seller";
@@ -47,11 +54,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const currentNav = mode === "seller" ? sellerNav : portalNav;
 
-  const NavLinks = () => (
+  const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
     <>
       {currentNav.map((item) => (
         <Link key={item.path} href={item.path}>
           <div
+            onClick={onNavigate}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
               location === item.path || (item.path !== "/" && item.path !== "/portal" && location.startsWith(item.path))
                 ? "bg-primary text-primary-foreground font-medium"
@@ -64,6 +72,44 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </Link>
       ))}
     </>
+  );
+
+  const PortalUserFooter = () => (
+    <Show when="signed-in">
+      <div className="mt-auto pt-4 border-t space-y-2">
+        <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-muted/50">
+          <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <UserCircle2 className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">
+              {user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] || "Customer"}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {user?.emailAddresses?.[0]?.emailAddress}
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+          onClick={() => signOut({ redirectUrl: `${basePath || "/"}/` })}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </Button>
+      </div>
+    </Show>
+  );
+
+  const ModeToggle = ({ id }: { id: string }) => (
+    <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border">
+      <Label htmlFor={id} className="text-sm font-medium cursor-pointer">
+        {mode === "portal" ? "Customer Portal" : "Seller Mode"}
+      </Label>
+      <Switch checked={mode === "portal"} onCheckedChange={toggleMode} id={id} />
+    </div>
   );
 
   return (
@@ -88,12 +134,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <nav className="flex-1 space-y-2">
               <NavLinks />
             </nav>
-            <div className="pt-4 border-t flex items-center gap-3">
-              <Switch checked={mode === "portal"} onCheckedChange={toggleMode} id="mobile-mode-toggle" />
-              <Label htmlFor="mobile-mode-toggle" className="cursor-pointer">
-                {mode === "portal" ? "Customer Portal" : "Seller Mode"}
-              </Label>
-            </div>
+            {mode === "portal" ? (
+              <PortalUserFooter />
+            ) : (
+              <div className="pt-4 border-t">
+                <ModeToggle id="mobile-mode-toggle" />
+              </div>
+            )}
+            {mode === "seller" && null}
+            {mode === "portal" && (
+              <Show when="signed-out">
+                <div className="pt-4 border-t">
+                  <ModeToggle id="mobile-mode-toggle-out" />
+                </div>
+              </Show>
+            )}
           </SheetContent>
         </Sheet>
       </div>
@@ -107,14 +162,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 space-y-2">
           <NavLinks />
         </nav>
-        <div className="mt-auto pt-4 border-t">
-          <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50 border">
-            <Label htmlFor="desktop-mode-toggle" className="text-sm font-medium cursor-pointer">
-              {mode === "portal" ? "Customer Portal" : "Seller Mode"}
-            </Label>
-            <Switch checked={mode === "portal"} onCheckedChange={toggleMode} id="desktop-mode-toggle" />
+        {mode === "portal" ? (
+          <>
+            <Show when="signed-in">
+              <PortalUserFooter />
+            </Show>
+            <Show when="signed-out">
+              <div className="mt-auto pt-4 border-t">
+                <ModeToggle id="desktop-mode-toggle-out" />
+              </div>
+            </Show>
+          </>
+        ) : (
+          <div className="mt-auto pt-4 border-t">
+            <ModeToggle id="desktop-mode-toggle" />
           </div>
-        </div>
+        )}
       </aside>
 
       {/* Main Content */}
