@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Users,
   Crown,
+  KeyRound,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -107,11 +108,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </p>
         </div>
       </div>
+      {role === "customer" && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+          onClick={() => setLocation("/seller-access")}
+        >
+          <KeyRound className="h-4 w-4" />
+          Claim Access
+        </Button>
+      )}
       <Button
         variant="ghost"
         size="sm"
         className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
-        onClick={() => signOut({ redirectUrl: `${basePath || "/"}/` })}
+        onClick={() => signOut({ redirectUrl: basePath ? `${basePath}/` : "/" })}
       >
         <LogOut className="h-4 w-4" />
         Sign out
