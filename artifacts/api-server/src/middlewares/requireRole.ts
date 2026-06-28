@@ -11,6 +11,7 @@ export async function getUserRole(userId: string): Promise<UserRole> {
 export function requireRole(...roles: UserRole[]) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const auth = getAuth(req);
+    console.log("[requireRole] auth.userId:", auth.userId, "| Authorization header:", req.headers.authorization?.slice(0, 30));
     if (!auth.userId) {
       res.status(401).json({ error: "Unauthorized" });
       return;
