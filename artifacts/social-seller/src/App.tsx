@@ -19,13 +19,16 @@ import Orders from "@/pages/orders";
 import OrderDetail from "@/pages/order-detail";
 import SellerAccess from "@/pages/seller-access";
 import AdminPanel from "@/pages/admin";
+import Products from "@/pages/products";
 
 import PortalDashboard from "@/pages/portal-dashboard";
 import PortalOrders from "@/pages/portal-orders";
 import PortalOrderDetail from "@/pages/portal-order-detail";
 import PortalWishlist from "@/pages/portal-wishlist";
 import PortalLoyalty from "@/pages/portal-loyalty";
+import PortalShop from "@/pages/portal-shop";
 import NotFound from "@/pages/not-found";
+import { CartProvider } from "@/contexts/cart";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -333,6 +336,9 @@ function AppRoutes() {
       <Route path="/broadcasts/generate">
         <SellerRoute><BroadcastsGenerate /></SellerRoute>
       </Route>
+      <Route path="/products">
+        <SellerRoute><Products /></SellerRoute>
+      </Route>
       <Route path="/orders">
         <SellerRoute><Orders /></SellerRoute>
       </Route>
@@ -354,6 +360,9 @@ function AppRoutes() {
       </Route>
       <Route path="/portal/loyalty">
         <PortalGuard><PortalLoyalty /></PortalGuard>
+      </Route>
+      <Route path="/portal/shop">
+        <PortalGuard><PortalShop /></PortalGuard>
       </Route>
 
       <Route>
@@ -392,10 +401,12 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
-        <TooltipProvider>
-          <AppRoutes />
-        </TooltipProvider>
-        <Toaster />
+        <CartProvider>
+          <TooltipProvider>
+            <AppRoutes />
+          </TooltipProvider>
+          <Toaster />
+        </CartProvider>
       </QueryClientProvider>
     </ClerkProvider>
   );

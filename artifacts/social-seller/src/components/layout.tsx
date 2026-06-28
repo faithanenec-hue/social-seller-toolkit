@@ -17,6 +17,7 @@ import {
   Users,
   Crown,
   KeyRound,
+  Package,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -49,6 +50,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const sellerNav = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Products", path: "/products", icon: Package },
     { name: "Captions", path: "/captions", icon: MessageSquareText },
     { name: "Broadcasts", path: "/broadcasts", icon: Megaphone },
     { name: "Orders", path: "/orders", icon: ShoppingBag },
@@ -57,6 +59,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const portalNav = [
     { name: "Dashboard", path: "/portal", icon: LayoutDashboard },
+    { name: "Shop", path: "/portal/shop", icon: Store },
     { name: "My Orders", path: "/portal/orders", icon: ShoppingBag },
     { name: "Wishlist", path: "/portal/wishlist", icon: Heart },
     { name: "Loyalty", path: "/portal/loyalty", icon: Gift },

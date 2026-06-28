@@ -7,6 +7,7 @@ import {
   UpdateProductParams,
   UpdateProductBody,
 } from "@workspace/api-zod";
+import { requireRole } from "../middlewares/requireRole";
 
 const router: IRouter = Router();
 
@@ -26,7 +27,7 @@ router.get("/products", async (req, res): Promise<void> => {
   res.json(products.map((p) => ({ ...p, price: Number(p.price) })));
 });
 
-router.post("/products", async (req, res): Promise<void> => {
+router.post("/products", requireRole("seller"), async (req, res): Promise<void> => {
   const parsed = CreateProductBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -37,7 +38,7 @@ router.post("/products", async (req, res): Promise<void> => {
   res.status(201).json({ ...product, price: Number(product.price) });
 });
 
-router.patch("/products/:id", async (req, res): Promise<void> => {
+router.patch("/products/:id", requireRole("seller"), async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateProductParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -52,12 +53,33 @@ router.patch("/products/:id", async (req, res): Promise<void> => {
   const { price: rawPrice, ...rest } = parsed.data;
   const updateData: Record<string, unknown> = { ...rest };
   if (rawPrice !== undefined) updateData.price = String(rawPrice);
-  const [product] = await db.update(productsTable).set(updateData as any).where(eq(productsTable.id, params.data.id)).returning();
+  const [product] = await db
+    .update(productsTable)
+    .set(updateData as any)
+    .where(eq(productsTable.id, params.data.id))
+    .returning();
   if (!product) {
     res.status(404).json({ error: "Product not found" });
     return;
   }
   res.json({ ...product, price: Number(product.price) });
+});
+
+router.delete("/products/:id", requireRole("seller"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid product id" });
+    return;
+  }
+  const [deleted] = await db
+    .delete(productsTable)
+    .where(eq(productsTable.id, id))
+    .returning();
+  if (!deleted) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
+  res.json({ deleted: true, id });
 });
 
 export default router;
