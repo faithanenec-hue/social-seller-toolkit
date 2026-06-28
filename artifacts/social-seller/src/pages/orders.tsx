@@ -190,8 +190,22 @@ export default function Orders() {
                     <p className="text-sm text-muted-foreground">{order.customerName} · {order.customerEmail}</p>
                     <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold">${Number(order.total).toFixed(2)}</span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-lg font-bold">£{Number(order.total).toFixed(2)}</span>
+                    {order.paymentStatus === "pending" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                        disabled={updateStatus.isPending}
+                        onClick={() => updateStatus.mutate({
+                          id: order.id,
+                          data: { status: "payment_received" as any },
+                        })}
+                      >
+                        ✓ Mark Paid
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setLocation(`/orders/${order.id}`)} data-testid={`btn-view-order-${order.id}`}>
                       <Eye className="h-3.5 w-3.5" />View
                     </Button>

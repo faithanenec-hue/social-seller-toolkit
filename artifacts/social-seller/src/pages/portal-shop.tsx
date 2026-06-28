@@ -186,7 +186,7 @@ function CheckoutDialog({ open, onClose }: { open: boolean; onClose: () => void 
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Complete your order</DialogTitle>
+              <DialogTitle>Place your order</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
@@ -201,6 +201,10 @@ function CheckoutDialog({ open, onClose }: { open: boolean; onClose: () => void 
                   <span>£{total.toFixed(2)}</span>
                 </div>
               </div>
+              <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 flex gap-2">
+                <span className="mt-0.5">💳</span>
+                <span>Payment is handled directly by the seller. Once you place your order, the seller will contact you to arrange payment.</span>
+              </div>
               <div className="space-y-1.5">
                 <Label>Full Name</Label>
                 <Input placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -213,7 +217,7 @@ function CheckoutDialog({ open, onClose }: { open: boolean; onClose: () => void 
             <DialogFooter>
               <Button variant="outline" onClick={handleClose}>Cancel</Button>
               <Button onClick={() => mutation.mutate()} disabled={!canSubmit || mutation.isPending}>
-                {mutation.isPending ? "Placing order…" : `Pay £${total.toFixed(2)}`}
+                {mutation.isPending ? "Placing order…" : `Place Order — £${total.toFixed(2)}`}
               </Button>
             </DialogFooter>
           </>
