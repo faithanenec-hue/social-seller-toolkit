@@ -1,7 +1,7 @@
 import { useGetAnalyticsOverview, getGetAnalyticsOverviewQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Users, ShoppingBag, MessageSquare, Skeleton } from "lucide-react";
+import { TrendingUp, Users, ShoppingBag, MessageSquare } from "lucide-react";
 import { Skeleton as SkeletonUI } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
